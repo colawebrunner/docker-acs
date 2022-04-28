@@ -1,0 +1,10 @@
+ansible
+hvac
+boto3
+pyyaml
+requests
+dnspython
+paramiko
+jinja2
+pyOpenSSL
+pynetbox

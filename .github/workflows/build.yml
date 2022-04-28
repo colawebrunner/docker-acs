@@ -1,0 +1,44 @@
+---
+
+# BUILD AND PUBLISH THE APP CONTAINER TO GHCR WHEN A NEW RELEASE IS PUBLISHED
+name: Build and Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    # steps to perform in job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Github Packages
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.PACKAGEPAT }}
+
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+
+      - name: Build tagged image
+        run: docker build ./psauto --file ./psauto/Dockerfile --tag ghcr.io/colawebrunner/docker-acs:${{steps.vars.outputs.tag}}
+
+      - name: Push tagged image to GitHub Container Registry
+        run: docker push ghcr.io/colawebrunner/docker-acs:${{steps.vars.outputs.tag}}
+
+      - name: Build latest image
+        run: docker build ./psauto --file ./psauto/Dockerfile --tag ghcr.io/colawebrunner/docker-acs:latest
+
+      - name: Push latest image to GitHub Container Registry
+        run: docker push ghcr.io/colawebrunner/docker-acs:latest
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
