@@ -29,13 +29,13 @@ jobs:
         run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
 
       - name: Build tagged image
-        run: docker build ./psauto --file ./psauto/Dockerfile --tag ghcr.io/colawebrunner/docker-acs:${{steps.vars.outputs.tag}}
+        run: docker build . --tag ghcr.io/colawebrunner/docker-acs:${{steps.vars.outputs.tag}}
 
       - name: Push tagged image to GitHub Container Registry
         run: docker push ghcr.io/colawebrunner/docker-acs:${{steps.vars.outputs.tag}}
 
       - name: Build latest image
-        run: docker build ./psauto --file ./psauto/Dockerfile --tag ghcr.io/colawebrunner/docker-acs:latest
+        run: docker build . --tag ghcr.io/colawebrunner/docker-acs:latest
 
       - name: Push latest image to GitHub Container Registry
         run: docker push ghcr.io/colawebrunner/docker-acs:latest
