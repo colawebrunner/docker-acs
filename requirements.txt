@@ -8,3 +8,4 @@ paramiko
 jinja2
 pyOpenSSL
 pynetbox
+pywinrm
