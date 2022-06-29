@@ -1,9 +1,12 @@
 # syntax=docker/dockerfile:1
-FROM ubuntu:latest
+FROM ubuntu:latest as base
 
-WORKDIR /code
+FROM base as builder
 
-COPY . .
+RUN mkdir /install
+WORKDIR /install
+
+COPY requirements.txt requirements.txt
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests \
     python3-dev python3-pip sshpass git gcc; \
@@ -12,6 +15,14 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install
     rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install --no-cache-dir -r requirements.txt
+# RUN python3 -m pip install --no-cache-dir -r requirements.txt
+
+RUN python3 -m pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+FROM base
+
+COPY --from=builder /install /usr/local
+
+WORKDIR /code
 
 LABEL org.opencontainers.image.source https://github.com/colawebrunner/docker-acs
