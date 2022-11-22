@@ -23,6 +23,14 @@ FROM base
 
 COPY --from=builder /install /usr/local
 
+RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests \
+    openssh-client nano vim; \
+    apt-get autoremove -y; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN git config --global credential.helper "cache --timeout=86400"
+
 WORKDIR /code
 
 LABEL org.opencontainers.image.source https://github.com/colawebrunner/docker-acs
