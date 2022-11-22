@@ -24,7 +24,7 @@ FROM base
 COPY --from=builder /install /usr/local
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests \
-    openssh-client nano vim; \
+    openssh-client nano vim git sshpass; \
     apt-get autoremove -y; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
