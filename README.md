@@ -26,6 +26,10 @@ installed Python dependency set captured from the working controller. Ubuntu is
 pinned to 26.04, but OS package updates and pip bootstrap remain floating. Revisit
 constraints deliberately for updates rather than treating them as permanent.
 
+ansible-pylibssh is installed so the netcommon network_cli connection uses libssh
+rather than warning and falling back to paramiko. Its manylinux wheel bundles
+libssh 4.11, so no extra apt packages are required in either build stage.
+
 Existing pytz and libyaml additions are retained. Config context remains enabled
 in the consuming inventory. No inventory filters or host variables are removed.
 
