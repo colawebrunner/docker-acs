@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:1
-FROM ubuntu:latest AS base
+FROM ubuntu:26.04 AS base
 
 FROM base AS builder
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests \
-    ca-certificates python3-dev python3-venv python3-pip gcc; \
-    apt-get autoremove -y; \
-    apt-get clean; \
+    ca-certificates python3-dev python3-venv python3-pip gcc libyaml-dev && \
+    apt-get autoremove -y && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Build into a virtualenv: Ubuntu marks the system Python as externally managed
@@ -14,17 +14,20 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-COPY requirements.txt requirements.txt
+COPY requirements.txt requirements.lock ./
+COPY patches/apply_ansible_cache_fix.py /tmp/apply_ansible_cache_fix.py
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt -c requirements.lock && \
+    python /tmp/apply_ansible_cache_fix.py && \
+    pip check
 
 FROM base
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests \
-    ca-certificates python3 openssh-client nano vim git sshpass; \
-    apt-get autoremove -y; \
-    apt-get clean; \
+    ca-certificates python3 openssh-client nano vim git sshpass libyaml-0-2 && \
+    apt-get autoremove -y && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /opt/venv /opt/venv
