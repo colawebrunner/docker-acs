@@ -1,4 +1,5 @@
 ansible
+ansible-pylibssh
 hvac
 boto3
 pyyaml
