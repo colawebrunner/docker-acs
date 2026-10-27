@@ -30,6 +30,38 @@ ansible-pylibssh is installed so the netcommon network_cli connection uses libss
 rather than warning and falling back to paramiko. Its manylinux wheel bundles
 libssh 4.11, so no extra apt packages are required in either build stage.
 
+## Cisco SSH backend
+
+For `ansible.netcommon.network_cli`, use `ansible-pylibssh`. Netmiko is a separate
+SSH automation library, not a selectable backend for this connection plugin.
+Netmiko itself depends on Paramiko, so commenting out the direct Paramiko
+requirement does not remove it. Having it installed does not mean Ansible uses it.
+
+To require libssh instead of allowing an automatic fallback, set this variable
+for the Cisco inventory group (alongside its existing connection and OS settings):
+
+```yaml
+ansible_network_cli_ssh_type: libssh
+```
+
+Build and check the corrected image:
+
+```sh
+docker build -t docker-acs:libssh-fix .
+docker run --rm docker-acs:libssh-fix python -c "from pylibsshext.session import Session; print('pylibssh OK')"
+```
+
+The Dockerfile also checks that import in the final runtime stage on every build.
+In the Compose file that actually runs your controller, change the service's
+`image:` to `docker-acs:libssh-fix`, then recreate that service after preserving
+container-local roles and caches as described below. The Compose file in this
+repository selects the published `latest` image, not the local build. A bind
+mount of this directory does not install changed Python requirements into an
+existing container.
+
+Alternatively, publish a release to run this repository's image-publishing
+workflow, then pull the updated published image and recreate the controller.
+
 Existing pytz and libyaml additions are retained. Config context remains enabled
 in the consuming inventory. No inventory filters or host variables are removed.
 

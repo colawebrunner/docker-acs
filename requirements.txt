@@ -5,10 +5,11 @@ boto3
 pyyaml
 requests
 dnspython
-paramiko
+# paramiko
 jinja2
 pyOpenSSL
 pynetbox
 pywinrm
 pypsrp
 pytz
+netmiko

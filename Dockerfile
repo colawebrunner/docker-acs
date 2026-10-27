@@ -33,6 +33,8 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+RUN python -c "from pylibsshext.session import Session"
+
 # Supply GitHub credentials from the environment at runtime. The helper is scoped
 # to github.com so the token is never offered to any other host, and $GITHUB_PAT
 # stays unexpanded here so it resolves in the running container, not at build time
